@@ -51,12 +51,14 @@ class CoverageApiServer {
             $response = $request->send();
 //                    echo $response->getBody();
             $data = $response->json();
-            var_dump($data);
+            return $data;
             //TODO : check response
         } catch(ClientErrorResponseException $e) {
+            echo "<h1>coverage : ".$e->getResponse()->getStatusCode()." : ".$e->getResponse()->getReasonPhrase()."</h1>";
+//            var_dump($response);
 //            var_dump($e);
         } catch(\Exception $e) {
-//            var_dump($e);
+            var_dump($e);
         }
     }
 

@@ -12,6 +12,7 @@ class CodeCoverageClient
 {
     protected $projectName = 'default';
     protected $sessionId = null;
+    protected $responseData = null;
     /** @var CoverageApiServer */
     private $apiServer = null;
     private $coverageIsRunning = false;
@@ -21,6 +22,8 @@ class CodeCoverageClient
     protected $cookiePath = "/";
 
     protected $getParamName = null;
+
+    protected $verbose = 0;
 
     /**
      * CodeCoverageClient constructor.
@@ -67,7 +70,11 @@ class CodeCoverageClient
                 throw new \Exception("Coverage Api server not configured");
             }
             $coverageData = xdebug_get_code_coverage();
-            $this->apiServer -> call("sendCoverage",$coverageData);
+            $this->responseData = $this->apiServer -> call("sendCoverage",$coverageData);
+
+            if($this->verbose) {
+                var_dump($this->responseData);
+            }
         }
     }
 
@@ -176,6 +183,16 @@ class CodeCoverageClient
     public function setProjectName($projectName)
     {
         $this->projectName = $projectName;
+        return $this;
+    }
+
+    /**
+     * @param int $verbose
+     * @return CodeCoverageClient
+     */
+    public function setVerbose($verbose)
+    {
+        $this->verbose = $verbose;
         return $this;
     }
 
