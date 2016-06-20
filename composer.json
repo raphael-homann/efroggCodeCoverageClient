@@ -1,0 +1,25 @@
+{
+  "name": "efrogg/codecoverageclient",
+  "type": "library",
+  "description": "client for codecoverageserver.",
+  "keywords": ["code coverage"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Raph raph",
+      "email": "raph@e-frogg.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.0",
+    "guzzle/guzzle":"latest"
+  },
+  "autoload": {
+    "psr-4": { "efrogg\\CodeCoverage": "src/CodeCoverage" }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "0.0.1"
+    }
+  }
+}
