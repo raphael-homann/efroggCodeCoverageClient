@@ -62,15 +62,11 @@ class CodeCoverageClient
     }
 
     public function commitCoverage() {
-        if($this->coverageIsRunning = true) {
+        if($this->coverageIsRunning) {
             if(is_null($this->apiServer)) {
                 throw new \Exception("Coverage Api server not configured");
             }
             $coverageData = xdebug_get_code_coverage();
-
-            $this->apiServer -> setProjectName($this->projectName);
-            $this->apiServer -> setSessionId($this->sessionId);
-
             $this->apiServer -> call("sendCoverage",$coverageData);
         }
     }
