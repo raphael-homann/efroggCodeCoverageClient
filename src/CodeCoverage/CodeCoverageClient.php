@@ -36,7 +36,7 @@ class CodeCoverageClient
     public function __construct(CoverageApiServer $apiServer)
     {
         $this->apiServer = $apiServer;
-        $this -> apiServer -> setProjectName($this->projectName);
+        $this->apiServer->setProjectName($this->projectName);
 
     }
 
@@ -67,7 +67,7 @@ class CodeCoverageClient
 //            xdebug_start_code_coverage();
             $this->coverageIsRunning = true;
             $self = $this;
-            register_shutdown_function(function() use ($self){
+            register_shutdown_function(function () use ($self) {
                 $self->commitCoverage();
             });
 
@@ -159,15 +159,15 @@ class CodeCoverageClient
 
                 if ($activate) {
                     // activation
-                    if (!$this->persister->exists()) {
-                        // si on n'en a pas un en cours
-                        if(!is_numeric($_GET[$this->getParamName])) {
-                            $session_name=$_GET[$this->getParamName];
-                        } else {
-                            $session_name=md5(uniqid(time()));
-                        }
-                        $this->persister->persist($session_name);
+//                    if (!$this->persister->exists()) {
+                    // si on n'en a pas un en cours
+                    if (!is_numeric($_GET[$this->getParamName])) {
+                        $session_name = $_GET[$this->getParamName];
+                    } else {
+                        $session_name = md5(uniqid(time()));
                     }
+                    $this->persister->persist($session_name);
+//                    }
                 } else {
                     // désactivation
                     $this->persister->delete();
@@ -200,7 +200,7 @@ class CodeCoverageClient
      */
     public function setProjectName($projectName)
     {
-        $this -> apiServer -> setProjectName($projectName);
+        $this->apiServer->setProjectName($projectName);
         $this->projectName = $projectName;
         return $this;
     }

@@ -55,8 +55,12 @@ class CoverageApiServer
             }
 
             $response = $request->send();
-//                    echo $response->getBody();
-            $data = $response->json();
+            try {
+                $data = $response->json();
+            } catch(\Exception $e) {
+                var_dump($e->getMessage());
+                echo("<pre>".$response->getBody()."</pre>");
+            }
             return $data;
             //TODO : check response
         } catch (ClientErrorResponseException $e) {
