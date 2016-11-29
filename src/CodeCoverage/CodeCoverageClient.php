@@ -8,6 +8,8 @@
  */
 namespace efrogg\CodeCoverage;
 
+use efrogg\CodeCoverage\Persister\PersisterInterface;
+
 class CodeCoverageClient
 {
     protected $projectName = 'default';
@@ -18,9 +20,8 @@ class CodeCoverageClient
     private $apiServer = null;
     private $coverageIsRunning = false;
 
-    protected $cookieName = 'C_C';
-    protected $cookieDuration = 86400;
-    protected $cookiePath = "/";
+    /** @var PersisterInterface */
+    protected $persister = null;
 
     protected $rootPath = "";
 
@@ -30,8 +31,6 @@ class CodeCoverageClient
 
     /**
      * CodeCoverageClient constructor.
-     * @param $projectName
-     * @param $sessionId
      * @param CoverageApiServer $apiServer
      */
     public function __construct(CoverageApiServer $apiServer)
@@ -160,49 +159,28 @@ class CodeCoverageClient
 
                 if ($activate) {
                     // activation
-                    if (!$this->cookieIsActive()) {
+                    if (!$this->persister->exists()) {
                         // si on n'en a pas un en cours
                         if(!is_numeric($_GET[$this->getParamName])) {
                             $session_name=$_GET[$this->getParamName];
                         } else {
                             $session_name=md5(uniqid(time()));
                         }
-                        $this->activateCookie($session_name);
+                        $this->persister->persist($session_name);
                     }
                 } else {
                     // désactivation
-                    $this->deactivateCookie();
+                    $this->persister->delete();
                 }
             }
         }
 
         // détection du cookie
-        if ($this->cookieIsActive()) {
-            $this->setSessionId($_COOKIE[$this->cookieName]);
+        if ($this->persister->exists()) {
+            $this->setSessionId($this->persister->read());
 
             $this->beginCoverage();
         }
-    }
-
-    protected function activateCookie($sessionId)
-    {
-        if (!is_null($this->cookieName)) {
-            setcookie($this->cookieName, $sessionId, time() + $this->cookieDuration, "/");
-            $_COOKIE[$this->cookieName] = $sessionId;
-        }
-    }
-
-    protected function deactivateCookie()
-    {
-        setcookie($this->cookieName, 0, time() - 86400, "/");
-        unset($_COOKIE[$this->cookieName]);
-    }
-
-    protected function cookieIsActive()
-    {
-        return (!is_null($this->cookieName)                  // gestion par cookie active
-            && isset($_COOKIE[$this->cookieName])       // cookie défini
-            && (bool)$_COOKIE[$this->cookieName]);       // cookie à 1 (ou une session)
     }
 
     /**
@@ -245,6 +223,24 @@ class CodeCoverageClient
     {
         $this->rootPath = $rootPath;
         return $this;
+    }
+
+    /**
+     * @param PersisterInterface $persister
+     * @return CodeCoverageClient
+     */
+    public function setPersister($persister)
+    {
+        $this->persister = $persister;
+        return $this;
+    }
+
+    /**
+     * @return PersisterInterface
+     */
+    public function getPersister()
+    {
+        return $this->persister;
     }
 
 }
