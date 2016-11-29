@@ -162,7 +162,12 @@ class CodeCoverageClient
                     // activation
                     if (!$this->cookieIsActive()) {
                         // si on n'en a pas un en cours
-                        $this->activateCookie(md5(uniqid(time())));
+                        if(!is_numeric($_GET[$this->getParamName])) {
+                            $session_name=$_GET[$this->getParamName];
+                        } else {
+                            $session_name=md5(uniqid(time()));
+                        }
+                        $this->activateCookie($session_name);
                     }
                 } else {
                     // désactivation
