@@ -6,7 +6,7 @@
  * Time: 10:07
  */
 
-namespace efrogg\CodeCoverage\Persister;
+namespace Efrogg\CodeCoverage\Persister;
 
 
 class FilePersister implements PersisterInterface

@@ -6,9 +6,9 @@
  * Date: 03/06/16
  * Time: 17:22
  */
-namespace efrogg\CodeCoverage;
+namespace Efrogg\CodeCoverage;
 
-use efrogg\CodeCoverage\Persister\PersisterInterface;
+use Efrogg\CodeCoverage\Persister\PersisterInterface;
 
 class CodeCoverageClient
 {

@@ -15,7 +15,7 @@
     "guzzlehttp/guzzle":"^3.8"
   },
   "autoload": {
-    "psr-4": { "efrogg\\CodeCoverage\\": "src/CodeCoverage" }
+    "psr-4": { "Efrogg\\CodeCoverage\\": "src/CodeCoverage" }
   },
   "extra": {
     "branch-alias": {

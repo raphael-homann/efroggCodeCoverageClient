@@ -7,7 +7,7 @@
  */
 
 
-namespace efrogg\CodeCoverage;
+namespace Efrogg\CodeCoverage;
 
 use Guzzle\Http\Exception\ClientErrorResponseException;
 

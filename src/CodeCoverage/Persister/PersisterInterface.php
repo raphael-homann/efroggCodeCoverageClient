@@ -6,7 +6,7 @@
  * Time: 10:02
  */
 
-namespace efrogg\CodeCoverage\Persister;
+namespace Efrogg\CodeCoverage\Persister;
 
 
 interface PersisterInterface
