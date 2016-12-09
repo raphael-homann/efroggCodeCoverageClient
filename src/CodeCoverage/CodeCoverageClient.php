@@ -95,9 +95,9 @@ class CodeCoverageClient
             } else {
                 $coverageData = xdebug_get_code_coverage();
             }
-//            if ($this->verbose) {
-//                print_r($coverageData);
-//            }
+            if ($this->verbose) {
+                print_r($coverageData);
+            }
             $this->responseData = $this->apiServer->call("sendCoverage", $coverageData);
 
             if ($this->verbose) {

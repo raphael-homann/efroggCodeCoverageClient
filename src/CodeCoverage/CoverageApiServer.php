@@ -20,15 +20,18 @@ class CoverageApiServer
 
     protected $authUser = null;
     protected $authPass = '';
+    protected $server_port = 80;
 
     /**
      * CoverageApiServer constructor.
      * @param $server_url
      * ex : http://code-coverage-server/api/
+     * @param int $port
      */
-    public function __construct($server_url)
+    public function __construct($server_url,$port=80)
     {
         $this->server_url = rtrim($server_url, "/");
+        $this->server_port = $port;
     }
 
     public function call($method, $data)
@@ -40,6 +43,9 @@ class CoverageApiServer
                 array("Content-Type" => "application/json"),
                 array()
             );
+            IF($this->server_port != 80) {
+                $request->setPort($this->server_port);
+            }
 
             // LE SESSION ID EST NULL
             $request->setBody(
