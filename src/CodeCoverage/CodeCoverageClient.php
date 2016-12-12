@@ -8,6 +8,7 @@
  */
 namespace Efrogg\CodeCoverage;
 
+use Efrogg\CodeCoverage\Data\customData;
 use Efrogg\CodeCoverage\Persister\PersisterInterface;
 
 class CodeCoverageClient
@@ -15,6 +16,7 @@ class CodeCoverageClient
     protected $projectName = 'default';
     protected $sessionId = null;
     protected $responseData = null;
+    protected $initial_time;
 
     /** @var CoverageApiServer */
     private $apiServer = null;
@@ -22,6 +24,9 @@ class CodeCoverageClient
 
     /** @var PersisterInterface */
     protected $persister = null;
+
+    /** @var customData[] */
+    protected $data_handlers=array();
 
     protected $rootPath = "";
 
@@ -62,6 +67,8 @@ class CodeCoverageClient
 
     public function beginCoverage()
     {
+        $this -> initial_time = microtime(true);
+
         if ($this->coverageIsAvailable()) {
             xdebug_start_code_coverage(XDEBUG_CC_UNUSED | XDEBUG_CC_DEAD_CODE);
 //            xdebug_start_code_coverage();
@@ -81,6 +88,7 @@ class CodeCoverageClient
             if (is_null($this->apiServer)) {
                 throw new \Exception("Coverage Api server not configured");
             }
+            $commit_time = microtime(true);
 
             $coverageData = array();
             if (!empty($this->rootPath)) {
@@ -95,12 +103,21 @@ class CodeCoverageClient
             } else {
                 $coverageData = xdebug_get_code_coverage();
             }
+            foreach($this->data_handlers as $handler) {
+                $coverageData[$handler->getDataName()] = $handler->getData();
+            }
+            $compile_time = microtime(true);
+
             if ($this->verbose) {
                 print_r($coverageData);
             }
-            $this->responseData = $this->apiServer->call("sendCoverage", $coverageData);
+//            $this->responseData = $this->apiServer->call("sendCoverage", $coverageData);
+            $sent_time = microtime(true);
 
             if ($this->verbose) {
+                var_dump("code time : ".round(($commit_time-$this->initial_time)*1000,2));
+                var_dump("compile time : ".round(($compile_time-$commit_time)*1000,2));
+                var_dump("send time : ".round(($sent_time-$compile_time)*1000,2));
                 var_dump($this->responseData);
             }
         }
@@ -130,20 +147,6 @@ class CodeCoverageClient
     public function setGetParamName($getParamName)
     {
         $this->getParamName = $getParamName;
-        return $this;
-    }
-
-    /**
-     * @param null $cookieName
-     * @param int $cookieDuration
-     * @param string $cookiePath
-     * @return CodeCoverageClient
-     */
-    public function setCookieName($cookieName, $cookieDuration = 86400, $cookiePath = "/")
-    {
-        $this->cookieName = $cookieName;
-        $this->cookieDuration = $cookieDuration;
-        $this->cookiePath = $cookiePath;
         return $this;
     }
 
@@ -241,6 +244,12 @@ class CodeCoverageClient
     public function getPersister()
     {
         return $this->persister;
+    }
+
+    public function addDataHandler(customData $data_handler)
+    {
+        $this->data_handlers[]=$data_handler;
+        return $this;
     }
 
 }
