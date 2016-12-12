@@ -23,7 +23,6 @@ abstract class CoverageCustomData
 
     protected function addData($data)
     {
-        d($data);
         $hash = md5(json_encode($data));
         if(isset($this->data[$hash])) {
             $this->data[$hash]["count"]++;
