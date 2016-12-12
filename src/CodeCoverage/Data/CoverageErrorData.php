@@ -9,10 +9,11 @@
 namespace Efrogg\CodeCoverage\Data;
 
 
-class ErrorCustomData extends customData
+class CoverageErrorData extends CoverageCustomData
 {
 
     protected $error_level = E_ALL ^ E_NOTICE;
+
     /**
      * ErrorCustomData constructor.
      * @param int $level
@@ -34,7 +35,16 @@ class ErrorCustomData extends customData
         set_error_handler(array($this,"handleError"),$level);
     }
 
-    protected function handleError($error) {
-        d($error);
+    public function handleError($errno, $errstr, $errfile, $errline) {
+//        ob_start();
+//        debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+//        $content = ob_get_clean();
+        $this->addData(array(
+            "errno" => $errno,
+            "errfile" => $errfile,
+            "errline" => $errline,
+            "errstr" => $errstr
+        ));
     }
+
 }

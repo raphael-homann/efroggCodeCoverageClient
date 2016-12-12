@@ -8,7 +8,7 @@
  */
 namespace Efrogg\CodeCoverage;
 
-use Efrogg\CodeCoverage\Data\customData;
+use Efrogg\CodeCoverage\Data\CoverageCustomData;
 use Efrogg\CodeCoverage\Persister\PersisterInterface;
 
 class CodeCoverageClient
@@ -25,7 +25,7 @@ class CodeCoverageClient
     /** @var PersisterInterface */
     protected $persister = null;
 
-    /** @var customData[] */
+    /** @var CoverageCustomData[] */
     protected $data_handlers=array();
 
     protected $rootPath = "";
@@ -246,7 +246,7 @@ class CodeCoverageClient
         return $this->persister;
     }
 
-    public function addDataHandler(customData $data_handler)
+    public function addDataHandler(CoverageCustomData $data_handler)
     {
         $this->data_handlers[]=$data_handler;
         return $this;
