@@ -31,19 +31,71 @@ abstract class CoverageCustomData
      * @param $severity
      * @param string $key (clé de regroupement des erreurs
      */
-    protected function addData($data,$severity,$key=null)
+    protected function addData($data, $severity, $key = null, $backtrace = null)
     {
-        if(null == $key) $key = json_encode($data);
-        $hash = md5($severity.$key);
-        if(isset($this->data[$hash])) {
+        if ($backtrace === null) {
+            $backtrace = $this->getBacktrace(2);
+        }
+        if (null == $key) {
+            $key = json_encode($data);
+        }
+        $hash = md5($severity . $key);
+        $hash_backtrace = md5($backtrace);
+        if (isset($this->data[$hash])) {
             $this->data[$hash]["count"]++;
+            if(isset($this->data[$hash]["backtrace"][$hash_backtrace])) {
+                $this->data[$hash]["backtrace"][$hash_backtrace]["count"]++;
+            }
         } else {
-            $this->data[$hash]=array(
+            $this->data[$hash] = array(
                 "count" => 1,
                 "severity" => $severity,
-                "data" => $data
+                "data" => $data,
+                "backtrace" => [
+                    $hash_backtrace => ["count"=>1,"trace"=>$backtrace]
+                ]
             );
         }
+    }
+
+    protected function getBacktrace($ignoreCount = 1)
+    {
+        $stack = debug_backtrace();
+        $ignoreCount++; // (pour ignorer ce level)
+        while ($ignoreCount-- > 0 && !empty($stack)) {
+            array_shift($stack);
+        }
+        $item = $stack[0];
+        if (isset($item["class"])) {
+            $function = $item["class"] . "::" . $item["function"];
+        } else {
+            $function = $item["function"];
+        }
+
+        $str_path = "";
+        $str_fullpath = "";
+        if (empty($stack)) {
+            $str_path = $str_fullpath = $function;
+        } else {
+            while ($item = array_shift($stack)) {
+                if (isset($item["class"])) {
+                    $itm_fn = $item["class"] . "::<b>" . $item["function"] . "</b>";
+                } else {
+                    $itm_fn = "<b>" . $item["function"] . "</b>";
+                }
+
+                $str_fullpath .= $item["function"] . " < ";
+                $str_path .= $item["function"] . " < ";
+                $logStack[] = "$itm_fn (called at $item[file] - line $item[line])";
+            }
+        }
+
+        $str_path = rtrim($str_path, " <");
+        return $str_path;
+//        echo implode("<br>", $logStack);
+//        echo "<br>";
+//        echo $str_path;
+//        exit;
     }
 
 }

@@ -18,6 +18,8 @@ class CodeCoverageClient
     protected $responseData = null;
     protected $initial_time;
 
+    protected $coverage_active = true;
+
     /** @var CoverageApiServer */
     private $apiServer = null;
     private $coverageIsRunning = false;
@@ -26,7 +28,7 @@ class CodeCoverageClient
     protected $persister = null;
 
     /** @var CoverageCustomData[] */
-    protected $data_handlers=array();
+    protected $data_handlers = array();
 
     protected $rootPath = "";
 
@@ -67,11 +69,13 @@ class CodeCoverageClient
 
     public function beginCoverage()
     {
-        $this -> initial_time = microtime(true);
+        $this->initial_time = microtime(true);
 
         if ($this->coverageIsAvailable()) {
-//            xdebug_start_code_coverage(XDEBUG_CC_UNUSED | XDEBUG_CC_DEAD_CODE);
+            if ($this->coverage_active) {
+                xdebug_start_code_coverage(XDEBUG_CC_UNUSED | XDEBUG_CC_DEAD_CODE);
 //            xdebug_start_code_coverage();
+            }
             $this->coverageIsRunning = true;
             $self = $this;
             register_shutdown_function(function () use ($self) {
@@ -90,34 +94,36 @@ class CodeCoverageClient
             }
             $commit_time = microtime(true);
 
-            $coverageData = array("coverage"=>array(),"custom"=>array());
-            if (!empty($this->rootPath)) {
-                $root = realpath($this->rootPath);
-                $rootLen = strlen($root);
-                foreach (xdebug_get_code_coverage() as $file => $lines) {
-                    if (strpos($file, $root) === 0) {
-                        $file = substr($file, $rootLen);
+            $coverageData = array("coverage" => array(), "custom" => array());
+            if ($this->coverage_active) {
+                if (!empty($this->rootPath)) {
+                    $root = realpath($this->rootPath);
+                    $rootLen = strlen($root);
+                    foreach (xdebug_get_code_coverage() as $file => $lines) {
+                        if (strpos($file, $root) === 0) {
+                            $file = substr($file, $rootLen);
+                        }
+                        $coverageData["coverage"][$file] = $lines;
                     }
-                    $coverageData["coverage"][$file] = $lines;
+                } else {
+                    $coverageData["coverage"] = xdebug_get_code_coverage();
                 }
-            } else {
-                $coverageData["coverage"] = xdebug_get_code_coverage();
             }
-            foreach($this->data_handlers as $handler) {
+            foreach ($this->data_handlers as $handler) {
                 $coverageData["custom"][$handler->getDataName()] = $handler->getData();
             }
             $compile_time = microtime(true);
 
             if ($this->verbose) {
-//                var_dump($coverageData);
+                dd($coverageData);
             }
             $this->responseData = $this->apiServer->call("sendCoverage", $coverageData);
             $sent_time = microtime(true);
 
             if ($this->verbose) {
-                var_dump("code time : ".round(($commit_time-$this->initial_time)*1000,2));
-                var_dump("compile time : ".round(($compile_time-$commit_time)*1000,2));
-                var_dump("send time : ".round(($sent_time-$compile_time)*1000,2));
+                var_dump("code time : " . round(($commit_time - $this->initial_time) * 1000, 2));
+                var_dump("compile time : " . round(($compile_time - $commit_time) * 1000, 2));
+                var_dump("send time : " . round(($sent_time - $compile_time) * 1000, 2));
                 var_dump($this->responseData);
             }
         }
@@ -248,7 +254,17 @@ class CodeCoverageClient
 
     public function addDataHandler(CoverageCustomData $data_handler)
     {
-        $this->data_handlers[]=$data_handler;
+        $this->data_handlers[] = $data_handler;
+        return $this;
+    }
+
+    /**
+     * @param bool $coverage_active
+     * @return CodeCoverageClient
+     */
+    public function setCoverageActive(bool $coverage_active): CodeCoverageClient
+    {
+        $this->coverage_active = $coverage_active;
         return $this;
     }
 
