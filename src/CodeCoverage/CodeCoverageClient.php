@@ -109,7 +109,7 @@ class CodeCoverageClient
             $compile_time = microtime(true);
 
             if ($this->verbose) {
-                var_dump($coverageData);
+//                var_dump($coverageData);
             }
             $this->responseData = $this->apiServer->call("sendCoverage", $coverageData);
             $sent_time = microtime(true);
