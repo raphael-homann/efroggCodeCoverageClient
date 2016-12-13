@@ -26,9 +26,9 @@ abstract class CoverageCustomData
 
     abstract public function getDataName();
 
-    protected function addData($data,$severity)
+    protected function addData($data,$severity,$key)
     {
-        $hash = md5($severity.json_encode($data));
+        $hash = md5($severity.$key);
         if(isset($this->data[$hash])) {
             $this->data[$hash]["count"]++;
         } else {

@@ -70,7 +70,7 @@ class CodeCoverageClient
         $this -> initial_time = microtime(true);
 
         if ($this->coverageIsAvailable()) {
-            xdebug_start_code_coverage(XDEBUG_CC_UNUSED | XDEBUG_CC_DEAD_CODE);
+//            xdebug_start_code_coverage(XDEBUG_CC_UNUSED | XDEBUG_CC_DEAD_CODE);
 //            xdebug_start_code_coverage();
             $this->coverageIsRunning = true;
             $self = $this;
