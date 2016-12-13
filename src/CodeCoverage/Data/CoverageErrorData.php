@@ -26,7 +26,7 @@ class CoverageErrorData extends CoverageCustomData
 
     public function getDataName()
     {
-        return "errors";
+        return "error";
     }
 
     private function setErrorRepotingLevel($level)
@@ -44,7 +44,25 @@ class CoverageErrorData extends CoverageCustomData
             "errfile" => $errfile,
             "errline" => $errline,
             "errstr" => $errstr
-        ));
+        ),$this->getSeverity($errno));
+    }
+
+    private function getSeverity($errno)
+    {
+        switch($errno) {
+            case E_WARNING:
+            case E_STRICT:
+                return self::SEVERITY_WARNING;
+            case E_NOTICE:
+                return self::SEVERITY_NOTICE;
+            case E_DEPRECATED:
+                return self::SEVERITY_DANGER;
+            case E_ERROR:
+            case E_RECOVERABLE_ERROR:
+                return self::SEVERITY_ERROR;
+            default:
+                return self::SEVERITY_NOTICE;
+        }
     }
 
 }

@@ -90,7 +90,7 @@ class CodeCoverageClient
             }
             $commit_time = microtime(true);
 
-            $coverageData = array();
+            $coverageData = array("coverage"=>array(),"custom"=>array());
             if (!empty($this->rootPath)) {
                 $root = realpath($this->rootPath);
                 $rootLen = strlen($root);
@@ -98,20 +98,20 @@ class CodeCoverageClient
                     if (strpos($file, $root) === 0) {
                         $file = substr($file, $rootLen);
                     }
-                    $coverageData[$file] = $lines;
+                    $coverageData["coverage"][$file] = $lines;
                 }
             } else {
-                $coverageData = xdebug_get_code_coverage();
+                $coverageData["coverage"] = xdebug_get_code_coverage();
             }
             foreach($this->data_handlers as $handler) {
-                $coverageData[$handler->getDataName()] = $handler->getData();
+                $coverageData["custom"][$handler->getDataName()] = $handler->getData();
             }
             $compile_time = microtime(true);
 
             if ($this->verbose) {
-                print_r($coverageData);
+                var_dump($coverageData);
             }
-//            $this->responseData = $this->apiServer->call("sendCoverage", $coverageData);
+            $this->responseData = $this->apiServer->call("sendCoverage", $coverageData);
             $sent_time = microtime(true);
 
             if ($this->verbose) {
