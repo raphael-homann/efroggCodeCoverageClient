@@ -40,7 +40,7 @@ abstract class CoverageCustomData
             $key = json_encode($data);
         }
         $hash = md5($severity . $key);
-        $hash_backtrace = md5($backtrace);
+        $hash_backtrace = md5(json_encode($backtrace));
         if (isset($this->data[$hash])) {
             $this->data[$hash]["count"]++;
             if(isset($this->data[$hash]["backtrace"][$hash_backtrace])) {
@@ -90,9 +90,9 @@ abstract class CoverageCustomData
             }
         }
 
+        return $logStack;
         $str_path = rtrim($str_path, " <");
         return $str_path;
-//        echo implode("<br>", $logStack);
 //        echo "<br>";
 //        echo $str_path;
 //        exit;

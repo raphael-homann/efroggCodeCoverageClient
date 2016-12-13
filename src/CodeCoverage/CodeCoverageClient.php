@@ -112,6 +112,7 @@ class CodeCoverageClient
             foreach ($this->data_handlers as $handler) {
                 $coverageData["custom"][$handler->getDataName()] = $handler->getData();
             }
+            $coverageData["url"] = $_SERVER["REQUEST_URI"];
             $compile_time = microtime(true);
 
             if ($this->verbose) {
