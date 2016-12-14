@@ -24,15 +24,11 @@ class CodeCoverageClient
     private $apiServer = null;
     private $coverageIsRunning = false;
 
-    /** @var PersisterInterface */
-    protected $persister = null;
 
     /** @var CoverageCustomData[] */
     protected $data_handlers = array();
 
     protected $rootPath = "";
-
-    protected $getParamName = null;
 
     protected $verbose = 0;
 
@@ -116,7 +112,11 @@ class CodeCoverageClient
             $compile_time = microtime(true);
 
             if ($this->verbose) {
-                dd($coverageData);
+                pp([
+                    "coverage_session"=>$this->sessionId,
+                    "verbose"=>$this->verbose,
+                ]);
+                pp($coverageData);
             }
             $this->responseData = $this->apiServer->call("sendCoverage", $coverageData);
             $sent_time = microtime(true);
@@ -147,58 +147,16 @@ class CodeCoverageClient
     }
 
     /**
-     * Le paramètre en GET permet d'activer / désactiver le cookie
-     * @param null $getParamName
-     * @return $this
-     */
-    public function setGetParamName($getParamName)
-    {
-        $this->getParamName = $getParamName;
-        return $this;
-    }
-
-    /**
-     *
-     */
-    public function handleTrigger()
-    {
-        // détection d'un éventuel parametre en URL
-        if (!is_null($this->getParamName)) {
-            if (isset($_GET[$this->getParamName])) {
-                $activate = (bool)$_GET[$this->getParamName];
-
-                if ($activate) {
-                    // activation
-//                    if (!$this->persister->exists()) {
-                    // si on n'en a pas un en cours
-                    if (!is_numeric($_GET[$this->getParamName])) {
-                        $session_name = $_GET[$this->getParamName];
-                    } else {
-                        $session_name = md5(uniqid(time()));
-                    }
-                    $this->persister->persist($session_name);
-//                    }
-                } else {
-                    // désactivation
-                    $this->persister->delete();
-                }
-            }
-        }
-
-        // détection du cookie
-        if ($this->persister->exists()) {
-            $this->setSessionId($this->persister->read());
-
-            $this->beginCoverage();
-        }
-    }
-
-    /**
      * @param mixed $sessionId
      * @return CodeCoverageClient
      */
     public function setSessionId($sessionId)
     {
+        if (!is_numeric($sessionId) && !empty($sessionId)) {
+        } else {
+            $sessionId = md5(uniqid(time()));
+        }
+
         $this->sessionId = $sessionId;
         $this->apiServer->setSessionId($sessionId);
         return $this;
@@ -233,24 +191,6 @@ class CodeCoverageClient
     {
         $this->rootPath = $rootPath;
         return $this;
-    }
-
-    /**
-     * @param PersisterInterface $persister
-     * @return CodeCoverageClient
-     */
-    public function setPersister($persister)
-    {
-        $this->persister = $persister;
-        return $this;
-    }
-
-    /**
-     * @return PersisterInterface
-     */
-    public function getPersister()
-    {
-        return $this->persister;
     }
 
     public function addDataHandler(CoverageCustomData $data_handler)
