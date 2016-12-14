@@ -177,6 +177,6 @@ class ParameterDetector extends PersistedDetector
 
     public function detectDeactivation()
     {
-        return $this->tokenIsValid() && isset($_GET[$this->session_parameter]) && (bool)$_GET[$this->session_parameter];
+        return $this->tokenIsValid() && isset($_GET[$this->session_parameter]) && !(bool)$_GET[$this->session_parameter];
     }
 }
