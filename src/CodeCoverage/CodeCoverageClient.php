@@ -116,7 +116,7 @@ class CodeCoverageClient
                     "coverage_session"=>$this->sessionId,
                     "verbose"=>$this->verbose,
                 ]);
-                pp($coverageData);
+                pp($coverageData["custom"]);
             }
             $this->responseData = $this->apiServer->call("sendCoverage", $coverageData);
             $sent_time = microtime(true);
