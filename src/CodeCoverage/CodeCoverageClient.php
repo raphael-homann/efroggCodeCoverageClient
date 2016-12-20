@@ -55,6 +55,14 @@ class CodeCoverageClient
     }
 
     /**
+     * @return bool
+     */
+    public static function isActif()
+    {
+        return null !== self::$instance;
+    }
+
+    /**
      * @return CodeCoverageClient
      */
     public static function getInstance()
