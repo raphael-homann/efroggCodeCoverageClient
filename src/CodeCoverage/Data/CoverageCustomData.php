@@ -58,10 +58,25 @@ abstract class CoverageCustomData
         }
     }
 
-    protected function getBacktrace($ignoreCount = 1)
+    protected function getBacktrace($ignoreCount = 1,$method_pattern = null)
     {
-        $stack = debug_backtrace();
+        $stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        if(null !== $method_pattern) {
+            // on remonte à une méthode
+            foreach($stack as $item) {
+                if (isset($item["class"])) {
+                    $function = $item["class"] . "::" . $item["function"];
+                } else {
+                    $function = $item["function"];
+                }
+                if(preg_match($method_pattern,$function)) {
+                   break;
+                }
+                $ignoreCount++;
+            }
+        }
         $ignoreCount++; // (pour ignorer ce level)
+
         while ($ignoreCount-- > 0 && !empty($stack)) {
             array_shift($stack);
         }
@@ -76,6 +91,7 @@ abstract class CoverageCustomData
         $str_fullpath = "";
         if (empty($stack)) {
             $str_path = $str_fullpath = $function;
+            $logStack[] = $str_path;
         } else {
             while ($item = array_shift($stack)) {
                 if (isset($item["class"])) {
