@@ -89,6 +89,7 @@ abstract class CoverageCustomData
 
         $str_path = "";
         $str_fullpath = "";
+        $logStack=array();
         if (empty($stack)) {
             $str_path = $str_fullpath = $function;
             $logStack[] = $str_path;
@@ -102,7 +103,7 @@ abstract class CoverageCustomData
 
                 $str_fullpath .= $item["function"] . " < ";
                 $str_path .= $item["function"] . " < ";
-                $logStack[] = "$itm_fn (called at $item[file] - line $item[line])";
+                $logStack[] = "$itm_fn ".(isset($item['file'])?"(called at $item[file] - line $item[line])":"");
             }
         }
 
