@@ -21,6 +21,7 @@ class CoverageApiServer
     protected $authUser = null;
     protected $authPass = '';
     protected $server_port = 80;
+    protected $encode_utf8 = false;
 
     /**
      * CoverageApiServer constructor.
@@ -47,19 +48,21 @@ class CoverageApiServer
                 $request->setPort($this->server_port);
             }
 
-            // LE SESSION ID EST NULL
-            $request->setBody(
-                json_encode(array(
-                    "_project" => $this->projectName,
-                    "_session" => $this->sessionId,
-                    "data" => $data
-                ))
+            $body = array(
+                "_project" => $this->projectName,
+                "_session" => $this->sessionId,
+                "data" => $data
             );
+            if($this->encode_utf8) {
+                array_walk_recursive($body, function(&$item) { $item = utf8_encode($item); });
+            }
+            // LE SESSION ID EST NULL
+            $request->setBody(json_encode($body));
+
 
             if (!empty($this->authUser)) {
                 $request->setAuth($this->authUser, $this->authPass);
             }
-
             $response = $request->send();
             try {
                 $data = $response->json();
@@ -99,6 +102,24 @@ class CoverageApiServer
     public function setSessionId($sessionId)
     {
         $this->sessionId = $sessionId;
+    }
+
+    /**
+     * @param bool $encode_utf8
+     * @return CoverageApiServer
+     */
+    public function setEncodeUtf8(bool $encode_utf8): CoverageApiServer
+    {
+        $this->encode_utf8 = $encode_utf8;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEncodeUtf8(): bool
+    {
+        return $this->encode_utf8;
     }
 
 }
